@@ -5,6 +5,7 @@ using System.Linq;
 
 public class Board : MonoBehaviour
 {
+
     public int width;
     public int height;
 
@@ -29,7 +30,7 @@ public class Board : MonoBehaviour
         SetupTiles();
         SetupCamera();
         FillBoard();
-        //HighlightMatches();
+
     }
 
     void SetupTiles()
@@ -47,6 +48,7 @@ public class Board : MonoBehaviour
                 tile.transform.parent = transform;
 
                 m_allTiles[i, j].Init(i, j, this);
+
             }
         }
     }
@@ -62,6 +64,7 @@ public class Board : MonoBehaviour
         float horizontalSize = ((float)width / 2f + (float)borderSize) / aspectRatio;
 
         Camera.main.orthographicSize = (verticalSize > horizontalSize) ? verticalSize : horizontalSize;
+
     }
 
     GameObject GetRandomGamePiece()
@@ -75,10 +78,7 @@ public class Board : MonoBehaviour
 
         return gamePiecePrefabs[randomIdx];
     }
-    bool IsWithinBounds(int x, int y)
-        {
-            return (x >= 0 && x < width && y >= 0 && y < height);
-        }
+
     public void PlaceGamePiece(GamePiece gamePiece, int x, int y)
     {
         if (gamePiece == null)
@@ -98,42 +98,14 @@ public class Board : MonoBehaviour
         gamePiece.SetCoord(x, y);
     }
 
-    void FillBoard()
+    bool IsWithinBounds(int x, int y)
     {
-        int maxIterations = 100;
-        int iterations = 0;
-        
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                GamePiece piece = FillRandomAt(i, j);
-                iterations = 0;
-                while (HasMatchOnFill(i, j) && iterations < maxIterations)
-                {
-                    ClearPieceAt(i,j);
-                    piece = FillRandomAt(i, j);
-                    iterations++;
-                }
-            }
-        }
+        return (x >= 0 && x < width && y >= 0 && y < height);
     }
 
-    bool HasMatchOnFill(int x, int y, int minLength = 3)
+    GamePiece FillRandomAt(int x, int y)
     {
-        List<GamePiece> leftMatches = FindMatches(x, y, new Vector2(-1,0), minLength);
-        List<GamePiece> downwardMatches = FindMatches(x, y, new Vector2(0,-1), minLength);
-        
-        leftMatches ??= new List<GamePiece>();
-        downwardMatches ??= new List<GamePiece>();
-
-        return leftMatches.Count > 0 || downwardMatches.Count > 0;
-    }
-
-    private GamePiece FillRandomAt(int x, int y)
-    {
-        GameObject randomPiece =
-            Instantiate(GetRandomGamePiece(), Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject randomPiece = Instantiate(GetRandomGamePiece(), Vector3.zero, Quaternion.identity) as GameObject;
 
         if (randomPiece != null)
         {
@@ -142,8 +114,55 @@ public class Board : MonoBehaviour
             randomPiece.transform.parent = transform;
             return randomPiece.GetComponent<GamePiece>();
         }
-
         return null;
+    }
+
+    void FillBoard()
+    {
+        int maxInterations = 100;
+        int iterations = 0;
+
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                GamePiece piece = FillRandomAt(i, j);
+                iterations = 0;
+
+                while (HasMatchOnFill(i, j))
+                {
+                    ClearPieceAt(i, j);
+                    piece = FillRandomAt(i, j);
+                    iterations++;
+
+                    if (iterations >= maxInterations)
+                    {
+                        Debug.Log("break =====================");
+                        break;
+                    }
+                }
+
+            }
+        }
+    }
+
+    bool HasMatchOnFill(int x, int y, int minLength = 3)
+    {
+        List<GamePiece> leftMatches = FindMatches(x, y, new Vector2(-1, 0), minLength);
+        List<GamePiece> downwardMatches = FindMatches(x, y, new Vector2(0, -1), minLength);
+
+        if (leftMatches == null)
+        {
+            leftMatches = new List<GamePiece>();
+        }
+
+        if (downwardMatches == null)
+        {
+            downwardMatches = new List<GamePiece>();
+        }
+
+        return (leftMatches.Count > 0 || downwardMatches.Count > 0);
+
     }
 
     public void ClickTile(Tile tile)
@@ -202,13 +221,13 @@ public class Board : MonoBehaviour
             else
             {
                 yield return new WaitForSeconds(swapTime);
-                ClearPieceAt(clickedPieceMatches);
-                ClearPieceAt(targetPieceMatches);
-            }
 
-            /*HighlightMatchesAt(clickedTile.xIndex, clickedTile.yIndex);
-            HighlightMatchesAt(targetTile.xIndex, targetTile.yIndex);*/
+                ClearAndRefillBoard(clickedPieceMatches.Union(targetPieceMatches).ToList());
+
+            }
         }
+
+
     }
 
     bool IsNextTo(Tile start, Tile end)
@@ -226,10 +245,6 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    // general search method; specify a starting coordinate (startX, startY) and use a Vector2 for direction
-    // i.e. (1,0) = right, (-1,0) = left, (0,1) = up, (0,-1) = down; minLength is minimum number to be considered
-    // a match
-
     List<GamePiece> FindMatches(int startX, int startY, Vector2 searchDirection, int minLength = 3)
     {
         List<GamePiece> matches = new List<GamePiece>();
@@ -245,7 +260,6 @@ public class Board : MonoBehaviour
         {
             matches.Add(startPiece);
         }
-
         else
         {
             return null;
@@ -262,25 +276,36 @@ public class Board : MonoBehaviour
             nextY = startY + (int)Mathf.Clamp(searchDirection.y, -1, 1) * i;
 
             if (!IsWithinBounds(nextX, nextY))
+            {
                 break;
+            }
 
             GamePiece nextPiece = m_allGamePieces[nextX, nextY];
 
-            if (!nextPiece)
+            if (nextPiece == null)
+            {
                 break;
-            
-            if (nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece))
-                matches.Add(nextPiece);
+            }
             else
-                break;
+            {
+                if (nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece))
+                {
+                    matches.Add(nextPiece);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         if (matches.Count >= minLength)
         {
             return matches;
         }
-
+			
         return null;
+
     }
 
     List<GamePiece> FindVerticalMatches(int startX, int startY, int minLength = 3)
@@ -301,6 +326,7 @@ public class Board : MonoBehaviour
         var combinedMatches = upwardMatches.Union(downwardMatches).ToList();
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
+
     }
 
     List<GamePiece> FindHorizontalMatches(int startX, int startY, int minLength = 3)
@@ -321,6 +347,7 @@ public class Board : MonoBehaviour
         var combinedMatches = rightMatches.Union(leftMatches).ToList();
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
+
     }
 
     List<GamePiece> FindMatchesAt(int x, int y, int minLength = 3)
@@ -337,9 +364,20 @@ public class Board : MonoBehaviour
         {
             vertMatches = new List<GamePiece>();
         }
-
         var combinedMatches = horizMatches.Union(vertMatches).ToList();
         return combinedMatches;
+    }
+
+    List<GamePiece> FindMatchesAt(List<GamePiece> gamePieces, int minLength = 3)
+    {
+        List<GamePiece> matches = new List<GamePiece>();
+
+        foreach (GamePiece piece in gamePieces)
+        {
+            matches = matches.Union(FindMatchesAt(piece.xIndex, piece.yIndex, minLength)).ToList();
+        }
+
+        return matches;
     }
 
     void HighlightTileOff(int x, int y)
@@ -374,6 +412,18 @@ public class Board : MonoBehaviour
             for (int j = 0; j < height; j++)
             {
                 HighlightMatchesAt(i, j);
+
+            }
+        }
+    }
+
+    void HighlightPieces(List<GamePiece> gamePieces)
+    {
+        foreach (GamePiece piece in gamePieces)
+        {
+            if (piece != null)
+            {
+                HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
             }
         }
     }
@@ -387,10 +437,10 @@ public class Board : MonoBehaviour
             m_allGamePieces[x, y] = null;
             Destroy(pieceToClear.gameObject);
         }
-        
-        HighlightTileOff(x,y);
+
+        HighlightTileOff(x, y);
     }
-    
+
     void ClearBoard()
     {
         for (int i = 0; i < width; i++)
@@ -401,7 +451,7 @@ public class Board : MonoBehaviour
             }
         }
     }
-    
+
     void ClearPieceAt(List<GamePiece> gamePieces)
     {
         foreach (GamePiece piece in gamePieces)
@@ -416,15 +466,16 @@ public class Board : MonoBehaviour
     List<GamePiece> CollapseColumn(int column, float collapseTime = 0.1f)
     {
         List<GamePiece> movingPieces = new List<GamePiece>();
+
         for (int i = 0; i < height - 1; i++)
         {
             if (m_allGamePieces[column, i] == null)
             {
-                for(int j = i+1;j < height; j++)
+                for (int j = i + 1; j < height; j++)
                 {
                     if (m_allGamePieces[column, j] != null)
                     {
-                        m_allGamePieces[column, j].Move(column, i, collapseTime * (j - i));
+                        m_allGamePieces[column, j].Move(column, i, collapseTime);
                         m_allGamePieces[column, i] = m_allGamePieces[column, j];
                         m_allGamePieces[column, i].SetCoord(column, i);
 
@@ -435,35 +486,35 @@ public class Board : MonoBehaviour
 
                         m_allGamePieces[column, j] = null;
                         break;
+
                     }
                 }
             }
         }
-
         return movingPieces;
+
     }
-    
-    List<GamePiece> CollapseColum(List<GamePiece> gamePieces)
+
+    List<GamePiece> CollapseColumn(List<GamePiece> gamePieces)
     {
-        List<int> columns = GetColumns(gamePieces);
         List<GamePiece> movingPieces = new List<GamePiece>();
-        
-        foreach (int column in columns)
+        List<int> columnsToCollapse = GetColumns(gamePieces);
+
+        foreach (int column in columnsToCollapse)
         {
             movingPieces = movingPieces.Union(CollapseColumn(column)).ToList();
         }
 
         return movingPieces;
+
     }
 
     List<int> GetColumns(List<GamePiece> gamePieces)
     {
         List<int> columns = new List<int>();
-        
+
         foreach (GamePiece piece in gamePieces)
         {
-            if (piece == null) continue;
-            
             if (!columns.Contains(piece.xIndex))
             {
                 columns.Add(piece.xIndex);
@@ -471,5 +522,54 @@ public class Board : MonoBehaviour
         }
 
         return columns;
+
+    }
+        
+    void ClearAndRefillBoard(List<GamePiece> gamePieces)
+    {
+        StartCoroutine(ClearAndRefillBoardRoutine(gamePieces));
+    }
+
+    IEnumerator ClearAndRefillBoardRoutine(List<GamePiece> gamePieces)
+    {
+        // clear and collapse
+
+        StartCoroutine(ClearAndCollapseRoutine(gamePieces));
+        yield return null;
+
+        //refill
+
+    }
+
+    IEnumerator ClearAndCollapseRoutine(List<GamePiece> gamePieces)
+    {
+        List<GamePiece> movingPieces = new List<GamePiece>();
+        List<GamePiece> matches = new List<GamePiece>();
+
+        HighlightPieces(gamePieces);
+        yield return new WaitForSeconds(0.25f);
+        bool isFinished = false;
+
+        while (!isFinished)
+        {
+            ClearPieceAt(gamePieces);
+
+            yield return new WaitForSeconds(0.25f);
+            movingPieces = CollapseColumn(gamePieces);
+            yield return new WaitForSeconds(0.25f);
+
+            matches = FindMatchesAt(movingPieces);
+
+            if (matches.Count == 0)
+            {
+                isFinished = true;
+                break;
+            }
+            else
+            {
+                yield return StartCoroutine(ClearAndCollapseRoutine(matches));
+            }
+        }
+        yield return null;
     }
 }
