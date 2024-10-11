@@ -1,17 +1,29 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
+
+[Serializable]
+public class StartingTile
+{
+    public GameObject tilePrefab;
+    public int x;
+    public int y;
+    public int z;
+}
 
 public class Board : MonoBehaviour
 {
-
     public int width;
     public int height;
 
     public int borderSize;
 
-    public GameObject tilePrefab;
+    public GameObject tileNormalPrefab;
+    public GameObject tileObstaclePrefab;
     public GameObject[] gamePiecePrefabs;
 
     public float swapTime = 0.5f;
@@ -23,6 +35,8 @@ public class Board : MonoBehaviour
     Tile m_targetTile;
     
     bool m_playerInputEnabled = true;
+    
+    public StartingTile[] startingTiles;
 
     void Start()
     {
@@ -37,21 +51,31 @@ public class Board : MonoBehaviour
 
     void SetupTiles()
     {
+        foreach (var sTile in startingTiles)
+        {
+            if(sTile != null)
+                MakeTile(sTile.tilePrefab, sTile.x, sTile.y, sTile.z);
+        }
+        
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                GameObject tile = Instantiate(tilePrefab, new Vector3(i, j, 0), Quaternion.identity) as GameObject;
-
-                tile.name = "Tile (" + i + "," + j + ")";
-
-                m_allTiles[i, j] = tile.GetComponent<Tile>();
-
-                tile.transform.parent = transform;
-
-                m_allTiles[i, j].Init(i, j, this);
-
+                if (m_allTiles[i, j] != null) continue;
+                MakeTile(tileNormalPrefab,i, j);
             }
+        }
+    }
+
+    private void MakeTile(GameObject tilePrefab, int x, int y, int z = 0)
+    {
+        if (tilePrefab != null)
+        {
+            GameObject tile = Instantiate(tilePrefab, new Vector3(x, y, 0), Quaternion.identity);
+            tile.name = "Tile (" + x + "," + y + ")";
+            m_allTiles[x, y] = tile.GetComponent<Tile>();
+            tile.transform.parent = transform;
+            m_allTiles[x, y].Init(x, y, this);
         }
     }
 
@@ -131,7 +155,7 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (m_allGamePieces[i, j] == null)
+                if (m_allGamePieces[i, j] == null && m_allTiles[i,j].tileType != TileType.Obstacle)
                 {
                     GamePiece piece = FillRandomAt(i, j, falseYOffset, moveTime);
                     iterations = 0;
@@ -426,7 +450,7 @@ public class Board : MonoBehaviour
 
         for (int i = 0; i < height - 1; i++)
         {
-            if (m_allGamePieces[column, i] == null)
+            if (m_allGamePieces[column, i] == null && m_allTiles[column, i].tileType != TileType.Obstacle)
             {
                 for (int j = i + 1; j < height; j++)
                 {

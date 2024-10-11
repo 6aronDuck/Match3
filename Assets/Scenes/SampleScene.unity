@@ -457,7 +457,8 @@ MonoBehaviour:
   width: 7
   height: 9
   borderSize: 2
-  tilePrefab: {fileID: 1190267577333576297, guid: 5b56a7cff21582d45af3d10853740d14, type: 3}
+  tileNormalPrefab: {fileID: 1190267577333576297, guid: 5b56a7cff21582d45af3d10853740d14, type: 3}
+  tileObstaclePrefab: {fileID: 3046864041191955742, guid: aa95918d5160dfa4589e2966493c41a6, type: 3}
   gamePiecePrefabs:
   - {fileID: 1475315586245373563, guid: bc59d5c1f0eade1428cc616b609327ef, type: 3}
   - {fileID: 820959628723774122, guid: 5547f87a02b8d2a4385c556d4a3b6dcc, type: 3}
@@ -465,6 +466,15 @@ MonoBehaviour:
   - {fileID: 2842667621791771416, guid: f6b74ea96c703b942bed43df247c084d, type: 3}
   - {fileID: 4375614351983891945, guid: eddc8c7500c54184c94762931dc4334e, type: 3}
   swapTime: 0.2
+  startingTiles:
+  - tilePrefab: {fileID: 3046864041191955742, guid: aa95918d5160dfa4589e2966493c41a6, type: 3}
+    x: 2
+    y: 3
+    z: 0
+  - tilePrefab: {fileID: 3046864041191955742, guid: aa95918d5160dfa4589e2966493c41a6, type: 3}
+    x: 5
+    y: 5
+    z: 0
 --- !u!4 &1538414272
 Transform:
   m_ObjectHideFlags: 0
