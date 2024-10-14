@@ -37,11 +37,14 @@ public class Board : MonoBehaviour
     bool m_playerInputEnabled = true;
 
     public StartingTile[] startingTiles;
+    
+    private ParticleManager m_particleManager;
 
     void Start()
     {
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
+        m_particleManager = GameObject.FindGameObjectWithTag("ParticleManager").GetComponent<ParticleManager>();
 
         SetupTiles();
         SetupCamera();
@@ -304,7 +307,6 @@ public class Board : MonoBehaviour
 
         return null;
     }
-
     List<GamePiece> FindVerticalMatches(int startX, int startY, int minLength = 3)
     {
         List<GamePiece> upwardMatches = FindMatches(startX, startY, new Vector2(0, 1), 2);
@@ -320,7 +322,6 @@ public class Board : MonoBehaviour
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
     }
-
     List<GamePiece> FindHorizontalMatches(int startX, int startY, int minLength = 3)
     {
         List<GamePiece> rightMatches = FindMatches(startX, startY, new Vector2(1, 0), 2);
@@ -336,7 +337,6 @@ public class Board : MonoBehaviour
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
     }
-
     List<GamePiece> FindMatchesAt(int x, int y, int minLength = 3)
     {
         List<GamePiece> horizMatches = FindHorizontalMatches(x, y, minLength);
@@ -351,7 +351,6 @@ public class Board : MonoBehaviour
         var combinedMatches = horizMatches.Union(vertMatches).ToList();
         return combinedMatches;
     }
-
     List<GamePiece> FindMatchesAt(List<GamePiece> gamePieces, int minLength = 3)
     {
         List<GamePiece> matches = new List<GamePiece>();
@@ -422,14 +421,18 @@ public class Board : MonoBehaviour
             Destroy(pieceToClear.gameObject);
         }
 
-        HighlightTileOff(x, y);
+        //HighlightTileOff(x, y);
     }
 
     void BreakTileAt(int x, int y)
     {
         Tile tileToBreak = m_allTiles[x, y];
         if (tileToBreak != null && tileToBreak.tileType == TileType.Breakable)
+        {
+            if(m_particleManager != null)
+                m_particleManager.BreakTileFXAt(tileToBreak.breakableValue, tileToBreak.xIndex, tileToBreak.yIndex);
             tileToBreak.BreakTile();
+        }
     }
 
     void BreakTileAt(List<GamePiece> gamePieces)
@@ -450,7 +453,11 @@ public class Board : MonoBehaviour
     {
         foreach (GamePiece piece in gamePieces)
             if (piece != null)
+            {
                 ClearPieceAt(piece.xIndex, piece.yIndex);
+                if(m_particleManager != null)
+                    m_particleManager.ClearPieceFXAt(piece.xIndex, piece.yIndex);
+            }
     }
 
     List<GamePiece> CollapseColumn(int column, float collapseTime = 0.1f)
@@ -523,7 +530,7 @@ public class Board : MonoBehaviour
             //refill
             yield return StartCoroutine(RefillRoutine());
             matches = FindAllMatches();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
         } while (matches.Count > 0);
 
         m_playerInputEnabled = true;
@@ -543,8 +550,8 @@ public class Board : MonoBehaviour
         List<GamePiece> movingPieces = new List<GamePiece>();
         List<GamePiece> matches = new List<GamePiece>();
 
-        HighlightPieces(gamePieces);
-        yield return new WaitForSeconds(0.25f);
+        //HighlightPieces(gamePieces);
+        yield return new WaitForSeconds(0.2f);
         bool isFinished = false;
 
         while (!isFinished)
