@@ -39,9 +39,9 @@ public class Board : MonoBehaviour
 
     public StartingObject[] startingTiles;
     public StartingObject[] startingGamePieces;
-    
+
     private ParticleManager m_particleManager;
-    
+
     public int fillYOffset = 10;
     public float fillMoveTime = 0.5f;
 
@@ -91,7 +91,7 @@ public class Board : MonoBehaviour
     {
         foreach (StartingObject sPiece in startingGamePieces)
         {
-            if(sPiece != null)
+            if (sPiece != null)
             {
                 GameObject piece = Instantiate(sPiece.prefab, new Vector3(sPiece.x, sPiece.y, 0), Quaternion.identity);
                 MakeGamePiece(piece, sPiece.x, sPiece.y, fillYOffset, fillMoveTime);
@@ -157,7 +157,7 @@ public class Board : MonoBehaviour
 
     private void MakeGamePiece(GameObject prefab, int x, int y, int falseYOffset = 0, float moveTime = 0.1f)
     {
-        if (prefab != null && IsWithinBounds(x,y))
+        if (prefab != null && IsWithinBounds(x, y))
         {
             prefab.GetComponent<GamePiece>().Init(this);
             PlaceGamePiece(prefab.GetComponent<GamePiece>(), x, y);
@@ -331,6 +331,7 @@ public class Board : MonoBehaviour
 
         return null;
     }
+
     List<GamePiece> FindVerticalMatches(int startX, int startY, int minLength = 3)
     {
         List<GamePiece> upwardMatches = FindMatches(startX, startY, new Vector2(0, 1), 2);
@@ -346,6 +347,7 @@ public class Board : MonoBehaviour
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
     }
+
     List<GamePiece> FindHorizontalMatches(int startX, int startY, int minLength = 3)
     {
         List<GamePiece> rightMatches = FindMatches(startX, startY, new Vector2(1, 0), 2);
@@ -361,6 +363,7 @@ public class Board : MonoBehaviour
 
         return (combinedMatches.Count >= minLength) ? combinedMatches : null;
     }
+
     List<GamePiece> FindMatchesAt(int x, int y, int minLength = 3)
     {
         List<GamePiece> horizMatches = FindHorizontalMatches(x, y, minLength);
@@ -375,6 +378,7 @@ public class Board : MonoBehaviour
         var combinedMatches = horizMatches.Union(vertMatches).ToList();
         return combinedMatches;
     }
+
     List<GamePiece> FindMatchesAt(List<GamePiece> gamePieces, int minLength = 3)
     {
         List<GamePiece> matches = new List<GamePiece>();
@@ -453,7 +457,7 @@ public class Board : MonoBehaviour
         Tile tileToBreak = m_allTiles[x, y];
         if (tileToBreak != null && tileToBreak.tileType == TileType.Breakable)
         {
-            if(m_particleManager != null)
+            if (m_particleManager != null)
                 m_particleManager.BreakTileFXAt(tileToBreak.breakableValue, tileToBreak.xIndex, tileToBreak.yIndex);
             tileToBreak.BreakTile();
         }
@@ -479,7 +483,7 @@ public class Board : MonoBehaviour
             if (piece != null)
             {
                 ClearPieceAt(piece.xIndex, piece.yIndex);
-                if(m_particleManager != null)
+                if (m_particleManager != null)
                     m_particleManager.ClearPieceFXAt(piece.xIndex, piece.yIndex);
             }
     }
@@ -565,7 +569,7 @@ public class Board : MonoBehaviour
 
     IEnumerator RefillRoutine()
     {
-        FillBoard(fillYOffset, fillMoveTime );
+        FillBoard(fillYOffset, fillMoveTime);
         yield return null;
     }
 
@@ -580,6 +584,9 @@ public class Board : MonoBehaviour
 
         while (!isFinished)
         {
+            List<GamePiece> bombedPieces = GetBombedPieces(gamePieces);
+            gamePieces = gamePieces.Union(bombedPieces).ToList();
+            
             ClearPieceAt(gamePieces);
             BreakTileAt(gamePieces);
 
@@ -615,5 +622,72 @@ public class Board : MonoBehaviour
         }
 
         return true;
+    }
+
+    List<GamePiece> GetRowPieces(int row)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
+        for (int i = 0; i < width; i++)
+            if (m_allGamePieces[i, row] != null) 
+                gamePieces.Add(m_allGamePieces[i, row]);
+
+        return gamePieces;
+    } 
+    
+    List<GamePiece> GetColumnPieces(int column)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
+        for (int i = 0; i < height; i++)
+            if (m_allGamePieces[column, i] != null)  
+                gamePieces.Add(m_allGamePieces[column, i]);
+
+        return gamePieces;
+    }
+
+    List<GamePiece> GetAdjacentPieces(int x, int y, int offset = 1)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
+        
+        for (int i = x - offset; i <= x + offset; i++)
+            for(int j = y - offset; j <= y + offset; j++)
+                if (IsWithinBounds(i, j))
+                    gamePieces.Add(m_allGamePieces[i, j]);
+
+        return gamePieces;
+    }
+
+    List<GamePiece> GetBombedPieces(List<GamePiece> gamePieces)
+    {
+        List<GamePiece> allPiecesToClear = new List<GamePiece>();
+
+        foreach (GamePiece piece in gamePieces)
+        {
+            if (piece != null)
+            {
+                var piecesToClear = new List<GamePiece>();
+                var bomb = piece.GetComponent<Bomb>();
+
+                if (bomb != null)
+                {
+                    switch (bomb.bombType)
+                    {
+                        case BombType.Column:
+                            piecesToClear = GetColumnPieces(piece.xIndex);
+                            break;
+                        case BombType.Row:
+                            piecesToClear = GetRowPieces(piece.yIndex);
+                            break;
+                        case BombType.Adjacent:
+                            piecesToClear = GetAdjacentPieces(piece.xIndex, piece.yIndex);
+                            break;
+                        
+                    }
+                }
+
+                allPiecesToClear = allPiecesToClear.Union(piecesToClear).ToList(); 
+            }
+        }
+
+        return allPiecesToClear;
     }
 }

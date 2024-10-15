@@ -467,14 +467,29 @@ MonoBehaviour:
   - {fileID: 4375614351983891945, guid: eddc8c7500c54184c94762931dc4334e, type: 3}
   swapTime: 0.2
   startingTiles:
-  - tilePrefab: {fileID: 1190267577333576297, guid: 514832d558421c048bcaf2c7f08b08e6, type: 3}
+  - prefab: {fileID: 1190267577333576297, guid: 514832d558421c048bcaf2c7f08b08e6, type: 3}
     x: 2
     y: 2
     z: 0
-  - tilePrefab: {fileID: 1190267577333576297, guid: 514832d558421c048bcaf2c7f08b08e6, type: 3}
+  - prefab: {fileID: 1190267577333576297, guid: 514832d558421c048bcaf2c7f08b08e6, type: 3}
     x: 2
     y: 3
     z: 0
+  startingGamePieces:
+  - prefab: {fileID: 4744464405159566549, guid: e047642ffc5a71740886ec66e5f8d9c1, type: 3}
+    x: 0
+    y: 0
+    z: 0
+  - prefab: {fileID: 4744464405159566549, guid: e047642ffc5a71740886ec66e5f8d9c1, type: 3}
+    x: 0
+    y: 1
+    z: 0
+  - prefab: {fileID: 697184284874209335, guid: dfedf3fa8c8ba14488f028ee3e52569c, type: 3}
+    x: 1
+    y: 2
+    z: 0
+  fillYOffset: 10
+  fillMoveTime: 0.5
 --- !u!4 &1538414272
 Transform:
   m_ObjectHideFlags: 0

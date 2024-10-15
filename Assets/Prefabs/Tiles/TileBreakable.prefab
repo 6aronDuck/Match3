@@ -107,7 +107,7 @@ MonoBehaviour:
   breakableValue: 2
   breakableSprites:
   - {fileID: 21300000, guid: 1c583be7c34ceac4f8fac8fd20534a7e, type: 3}
-  - {fileID: 21300000, guid: a4aac42859747c748919c7cfa4aed2fb, type: 3}
+  - {fileID: 21300000, guid: 585757b308d164ca4be60992762b4393, type: 3}
   - {fileID: 21300000, guid: 3f4447a6ac257e94a9d452b54d75c833, type: 3}
   normalColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!61 &-5363341790451050692
