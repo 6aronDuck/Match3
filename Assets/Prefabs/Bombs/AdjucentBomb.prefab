@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4453932170787553422}
   - component: {fileID: 5074202091697143399}
   m_Layer: 0
-  m_Name: AdjustenBomb
+  m_Name: AdjucentBomb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

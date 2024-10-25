@@ -465,6 +465,16 @@ MonoBehaviour:
   - {fileID: 1258069006755075014, guid: 513d911eef30a2749bdb8b4387aee078, type: 3}
   - {fileID: 2842667621791771416, guid: f6b74ea96c703b942bed43df247c084d, type: 3}
   - {fileID: 4375614351983891945, guid: eddc8c7500c54184c94762931dc4334e, type: 3}
+  adjacentBombPrefab: {fileID: 4780425920162421144, guid: 789775bd08607a94789c6ec9070fbb12, type: 3}
+  columnBombPrefab: {fileID: 4780425920162421144, guid: 66dfd1c355717cc4e96b6b3d981e8279, type: 3}
+  rowBombPrefab: {fileID: 697184284874209335, guid: dfedf3fa8c8ba14488f028ee3e52569c, type: 3}
+  colorBombPrefab: {fileID: 7211543494026756289, guid: 7972bb7c988d7fc43be55265ea53bd9d, type: 3}
+  maxCollectibles: 3
+  collectibleCount: 0
+  chanceForCollectible: 0.647
+  collectiblePrefabs:
+  - {fileID: 5213896190613582104, guid: bb0fe9b6e8520c74cbc744a672aba728, type: 3}
+  - {fileID: 2774050988020357465, guid: 82cc72f2b71b5f64285e3f117577b88c, type: 3}
   swapTime: 0.2
   startingTiles:
   - prefab: {fileID: 1190267577333576297, guid: 514832d558421c048bcaf2c7f08b08e6, type: 3}
@@ -475,19 +485,7 @@ MonoBehaviour:
     x: 2
     y: 3
     z: 0
-  startingGamePieces:
-  - prefab: {fileID: 4744464405159566549, guid: e047642ffc5a71740886ec66e5f8d9c1, type: 3}
-    x: 0
-    y: 0
-    z: 0
-  - prefab: {fileID: 4744464405159566549, guid: e047642ffc5a71740886ec66e5f8d9c1, type: 3}
-    x: 0
-    y: 1
-    z: 0
-  - prefab: {fileID: 697184284874209335, guid: dfedf3fa8c8ba14488f028ee3e52569c, type: 3}
-    x: 1
-    y: 2
-    z: 0
+  startingGamePieces: []
   fillYOffset: 10
   fillMoveTime: 0.5
 --- !u!4 &1538414272
@@ -537,6 +535,7 @@ MonoBehaviour:
   clearFXPrefab: {fileID: 2933460049652044781, guid: f00ca2bdef33bc44cb93ad34a11b33bf, type: 3}
   breakFXPrefab: {fileID: 8896568890124907, guid: 129344e198f101c4b98bc689c04316d1, type: 3}
   doubleBreakFXPrefab: {fileID: 4373968499836850785, guid: a2e5bdba131122c49b619e4aef5b17af, type: 3}
+  bombFXPrefab: {fileID: 7850238081414028349, guid: 8cc204cbb988e524196bda947b2c3e0a, type: 3}
 --- !u!4 &1933026479
 Transform:
   m_ObjectHideFlags: 0

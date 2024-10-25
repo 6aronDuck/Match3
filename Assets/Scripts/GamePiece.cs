@@ -1,6 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
+
+public enum MatchValue
+{
+	Yellow,
+	Blue,
+	Magenta,
+	Indigo,
+	Green,
+	Teal,
+	Red,
+	Cyan,
+	Wild,
+	None
+}
 public class GamePiece : MonoBehaviour {
 
 	public int xIndex;
@@ -22,45 +36,7 @@ public class GamePiece : MonoBehaviour {
 	};
 
 	public MatchValue matchValue;
-
-	public enum MatchValue
-	{
-		Yellow,
-		Blue,
-		Magenta,
-		Indigo,
-		Green,
-		Teal,
-		Red,
-		Cyan,
-		Wild
-	}
-
-
-	// Use this for initialization
-	void Start () 
-	{
 	
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		/*
-		if (Input.GetKeyDown(KeyCode.RightArrow))
-		{
-			Move((int)transform.position.x + 2, (int) transform.position.y, 0.5f);
-
-		}
-
-		if (Input.GetKeyDown(KeyCode.LeftArrow))
-		{
-			Move((int)transform.position.x - 2, (int) transform.position.y, 0.5f);
-
-		}
-		*/
-
-	}
 
 	public void Init(Board board)
 	{
@@ -145,6 +121,25 @@ public class GamePiece : MonoBehaviour {
 		m_isMoving = false;
 
 
+	}
+
+	public void ChangeColor(GamePiece pieceToMatch)
+	{
+		SpriteRenderer rendererToChange = GetComponent<SpriteRenderer>();
+
+		Color colorToMatch = Color.clear;
+
+		if (pieceToMatch != null)
+		{
+			SpriteRenderer  rendererToMatch  = pieceToMatch.GetComponent<SpriteRenderer>();
+			
+			if(rendererToMatch != null && rendererToChange != null)
+			{
+				rendererToChange.color = rendererToMatch.color;
+			}
+		}
+
+		matchValue = pieceToMatch.matchValue;
 	}
 
 }
