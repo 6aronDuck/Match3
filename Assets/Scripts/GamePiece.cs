@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using DefaultNamespace;
 
 
 public enum MatchValue
@@ -36,6 +37,8 @@ public class GamePiece : MonoBehaviour {
 	};
 
 	public MatchValue matchValue;
+
+	public int scoreValue = 20;
 	
 
 	public void Init(Board board)
@@ -140,6 +143,14 @@ public class GamePiece : MonoBehaviour {
 		}
 
 		matchValue = pieceToMatch.matchValue;
+	}
+
+	public void ScorePoints(int multiplier = 1, int bonus = 0)
+	{
+		if(ScoreManager.Instance != null)
+		{
+			ScoreManager.Instance.AddScore(scoreValue);
+		}
 	}
 
 }
