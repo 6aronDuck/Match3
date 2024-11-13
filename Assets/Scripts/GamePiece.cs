@@ -14,6 +14,8 @@ public enum MatchValue
 	Red,
 	Cyan,
 	Wild,
+	Purple,
+	Orange,
 	None
 }
 public class GamePiece : MonoBehaviour {
@@ -40,6 +42,8 @@ public class GamePiece : MonoBehaviour {
 
 	public int scoreValue = 20;
 	
+	public AudioClip clearSound;
+	
 
 	public void Init(Board board)
 	{
@@ -54,12 +58,8 @@ public class GamePiece : MonoBehaviour {
 
 	public void Move (int destX, int destY, float timeToMove)
 	{
-
 		if (!m_isMoving)
-		{
-
 			StartCoroutine(MoveRoutine(new Vector3(destX, destY,0), timeToMove));	
-		}
 	}
 
 
@@ -82,10 +82,7 @@ public class GamePiece : MonoBehaviour {
 				reachedDestination = true;
 
 				if (m_board !=null)
-				{
 					m_board.PlaceGamePiece(this, (int) destination.x, (int) destination.y);
-
-				}
 
 				break;
 			}
@@ -137,9 +134,7 @@ public class GamePiece : MonoBehaviour {
 			SpriteRenderer  rendererToMatch  = pieceToMatch.GetComponent<SpriteRenderer>();
 			
 			if(rendererToMatch != null && rendererToChange != null)
-			{
 				rendererToChange.color = rendererToMatch.color;
-			}
 		}
 
 		matchValue = pieceToMatch.matchValue;
@@ -148,9 +143,10 @@ public class GamePiece : MonoBehaviour {
 	public void ScorePoints(int multiplier = 1, int bonus = 0)
 	{
 		if(ScoreManager.Instance != null)
-		{
 			ScoreManager.Instance.AddScore(scoreValue);
-		}
+
+		if (SoundManager.Instance != null)
+			SoundManager.Instance.PlayClipAtPoint(clearSound, Vector3.zero, SoundManager.Instance.sfxVolume);
 	}
 
 }

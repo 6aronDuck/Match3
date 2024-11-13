@@ -27,9 +27,9 @@ public class Board : MonoBehaviour
     public GameObject tileObstaclePrefab;
     public GameObject[] gamePiecePrefabs;
     
-    public GameObject adjacentBombPrefab;
-    public GameObject columnBombPrefab;
-    public GameObject rowBombPrefab;
+    public GameObject[] adjacentBombPrefabs;
+    public GameObject[] columnBombPrefabs;
+    public GameObject[] rowBombPrefabs;
     public GameObject colorBombPrefab;
     
     public int maxCollectibles = 3;
@@ -861,12 +861,16 @@ public class Board : MonoBehaviour
     GameObject DropBomb(int x, int y, Vector2 swapDirection, List<GamePiece> gamePieces)
     {
         GameObject bomb = null;
+        MatchValue mv = MatchValue.None;
         if (gamePieces.Count < 4) return bomb;
+
+        if (gamePieces != null) 
+            mv = FindMatchValue(gamePieces);
         
         if (IsCornerMatch(gamePieces))
         {
-            if (adjacentBombPrefab != null)
-                bomb = MakeBomb(adjacentBombPrefab, x, y);
+            if (adjacentBombPrefabs != null)
+                bomb = MakeBomb(FindGamePieceByMatchValue(adjacentBombPrefabs, mv), x, y);
         }
         else
         {
@@ -876,7 +880,7 @@ public class Board : MonoBehaviour
                     bomb = MakeBomb(colorBombPrefab, x, y);
             }
             else
-                bomb = MakeBomb(swapDirection.x != 0 ? rowBombPrefab : columnBombPrefab, x, y);
+                bomb = MakeBomb(swapDirection.x != 0 ? FindGamePieceByMatchValue(rowBombPrefabs, mv) : FindGamePieceByMatchValue(columnBombPrefabs, mv), x, y);
         }
 
         return bomb;
@@ -972,5 +976,33 @@ public class Board : MonoBehaviour
             }
         }
         return bombedPieces.Except(piecesToRemove).ToList();
+    }
+
+    MatchValue FindMatchValue(List<GamePiece> gamePieces)
+    {
+        foreach (var piece in gamePieces)
+        {
+            if (piece != null)
+                return piece.matchValue;
+        }
+
+        return MatchValue.None;
+    }
+    
+    GameObject FindGamePieceByMatchValue(GameObject[] gamePiecePrefabs, MatchValue matchValue)
+    {
+        if (matchValue == MatchValue.None)
+            return null;
+
+        foreach (var prefab in gamePiecePrefabs)
+        {
+            GamePiece piece = prefab.GetComponent<GamePiece>();
+            
+            if(piece != null)
+                if (piece.matchValue == matchValue)
+                    return prefab;
+        }
+
+        return null;
     }
 }

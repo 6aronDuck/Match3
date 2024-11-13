@@ -15,9 +15,7 @@ public class ParticleManager : MonoBehaviour
             ParticlePlayer particlePlayer = clearFX.GetComponent<ParticlePlayer>();
             
             if (particlePlayer != null)
-            {
                 particlePlayer.Play();
-            }
         }
     }
     
@@ -38,9 +36,7 @@ public class ParticleManager : MonoBehaviour
         if (breakFX == null) return;
         particlePlayer = breakFX.GetComponent<ParticlePlayer>();
         if(particlePlayer != null)
-        {
             particlePlayer.Play();
-        }
     }
     
     public void BombFXAt(int x, int y, int z = 0)
@@ -51,9 +47,7 @@ public class ParticleManager : MonoBehaviour
             ParticlePlayer particlePlayer = bombFX.GetComponent<ParticlePlayer>();
             
             if (particlePlayer != null)
-            {
                 particlePlayer.Play();
-            }
         }
     }
 }
